@@ -43,6 +43,10 @@ public class StaticList<T> {
     public boolean isFull(){
         return this.length == MAX_SIZE;
     }
+    /** 判断使用数组是否为空*/
+    public boolean isEmpty() {
+        return length == 0;
+    }
 
 
     /**新增*/
@@ -86,9 +90,49 @@ public class StaticList<T> {
         return true;
     }
 
+    /**根据索引删除*/
+    public boolean delete(int index){
+        if(isEmpty()){
+            return false;
+        }
+        //获取头结点
+        int k = MAX_SIZE-1;
+        //循环，找到数据所在位置，删除
+        for(int i=0;i<index-1;i++){
+            k = node[k].getCur();
+        }
+        int deleteIndex = node[k+1].getCur();
+        //将待删除的元素的指针赋值给其前一个元素
+        node[k].setCur(node[deleteIndex].getCur());
+        //设置备用下标
+        node[deleteIndex].setCur(node[0].getCur());
+        node[deleteIndex].setData(null);
+        node[0].setCur(deleteIndex);
+        length--;
+        return true;
+    }
 
+    /**删除指定数据*/
+    public boolean deleteData(T data){
+        if(isEmpty()){
+            return false;
+        }
+        //获取头结点
+        int k = MAX_SIZE-1;
+        //遍历整个链表，找到数据所在位置，删除
+        while(k!=0){
+            if(node[node[k].getCur()].getData() == data){
+                int deleteIndex = node[k].getCur();
+                node[deleteIndex].setCur(node[0].getCur());
+                node[0].setCur(deleteIndex);
+                node[deleteIndex].setData(null);
+                length--;
+            }
+            k = node[k].getCur();
+        }
+        return true;
+    }
 
-    //删除
     //删除所有
     //打印
 
