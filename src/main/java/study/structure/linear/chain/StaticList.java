@@ -29,7 +29,7 @@ public class StaticList<T> {
             node[i] = new SNode<T>(null,i+1);
         }
         //数组最后一个元素的cur用来存放第一个插入元素的下标，相当于头结点
-        node[MAX_SIZE-1].setCur(0);
+        node[MAX_SIZE-1] = new SNode<T>(null,0);
         this.length = 0;
     }
     /**获取实际长度*/
@@ -58,6 +58,13 @@ public class StaticList<T> {
         //根据第一个元素的cur获取备用链表的下标；
         int index = node[0].getCur();
         node[0].setCur(node[index].getCur());
+        //循环,找到尾节点
+        int k = node[MAX_SIZE-1].getCur();
+        while(node[k].getCur()!=0){
+            k = node[k].getCur();
+        }
+        //将尾结点游标设置为0
+        node[k].setCur(index);
         //插入数据，定义游标
         node[index].setCur(0);
         node[index].setData(data);
@@ -67,9 +74,11 @@ public class StaticList<T> {
     }
 
     /**插入*/
-    public boolean insert(T data,int index){
-
-        //判断是否为空
+    public boolean insert(T data,int index) throws Exception {
+        //判断索引是否合法
+        if(index>this.length+1||index<1){
+            throw new Exception("索引不在范围内");
+        }
         //获取头结点
         int k = MAX_SIZE - 1;
         //获取备用链表的下标
@@ -87,13 +96,18 @@ public class StaticList<T> {
         }
         node[newNodeIndex].setCur(node[k].getCur());
         node[k].setCur(newNodeIndex);
+        length++;
         return true;
     }
 
-    /**根据索引删除*/
-    public boolean delete(int index){
+    /**根据索引删除,需求有点蠢，但是还是写一下*/
+    public boolean delete(int index) throws Exception {
+        //判断索引是否合法
+        if(index>this.length||index<1){
+            throw new Exception("索引不在范围内");
+        }
         if(isEmpty()){
-            return false;
+            throw new Exception("链表为空");
         }
         //获取头结点
         int k = MAX_SIZE-1;
@@ -101,10 +115,8 @@ public class StaticList<T> {
         for(int i=0;i<index-1;i++){
             k = node[k].getCur();
         }
-        int deleteIndex = node[k+1].getCur();
-        //将待删除的元素的指针赋值给其前一个元素
+        int deleteIndex = node[k].getCur();
         node[k].setCur(node[deleteIndex].getCur());
-        //设置备用下标
         node[deleteIndex].setCur(node[0].getCur());
         node[deleteIndex].setData(null);
         node[0].setCur(deleteIndex);
@@ -121,22 +133,72 @@ public class StaticList<T> {
         int k = MAX_SIZE-1;
         //遍历整个链表，找到数据所在位置，删除
         while(k!=0){
-            if(node[node[k].getCur()].getData() == data){
+            if(node[node[k].getCur()].getData()==null){
+                k = node[k].getCur();
+                continue;
+            }
+            if(node[node[k].getCur()].getData().equals(data)){
                 int deleteIndex = node[k].getCur();
+                node[k].setCur(node[deleteIndex].getCur());
                 node[deleteIndex].setCur(node[0].getCur());
-                node[0].setCur(deleteIndex);
                 node[deleteIndex].setData(null);
+                node[0].setCur(deleteIndex);
                 length--;
+                System.out.println(k);
             }
             k = node[k].getCur();
         }
         return true;
     }
 
-    //删除所有
-    //打印
 
 
+    /**删除所有*/
+    public boolean deleteAll(){
+        if(isEmpty()){
+            return true;
+        }
+        for(int i=0;i<MAX_SIZE-1;i++){
+            node[i].setCur(i+1);
+            node[i].setData(null);
+        }
+        node[MAX_SIZE-1].setCur(0);
+        node[MAX_SIZE-1].setData(null);
+        length = 0;
+        return true;
+    }
+
+
+
+
+    /**打印*/
+    public void printAll(){
+        for(int i=0;i<MAX_SIZE;i++){
+            System.out.println("[" + i + " " + node[i].getData() + " " + node[i].getCur() + "]");
+        }
+    }
+
+
+    public static void main(String[] args) throws Exception {
+        StaticList<String> list = new StaticList<String>();
+        list.add("aaa");
+        list.add("bbb");
+        list.add("eee");
+        list.add("bbb");
+        list.printAll();
+        //插入时逻辑循序和链表一样，主要看游标对应关系,尾结点的游标为0，数组最后一个元素的游标为头结点的索引，
+        //第一个元素的游标为别用节点的索引
+        System.out.println(list.length);
+        list.insert("ccc", 4);
+        list.printAll();
+        list.delete(1);
+        list.printAll();
+        //看到结果可能有疑惑，但是认真看看思考，没有错
+        list.delete(2);
+        list.printAll();
+
+
+    }
 
 
 }
